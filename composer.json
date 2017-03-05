@@ -1,0 +1,17 @@
+{
+    "name": "cvweiss/guzzler",
+    "description": "A utility that allows multiples sequences of calls with execution of code between each sequence.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Clinton Weiss",
+            "email": "cvweiss@gmail.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^6.2"
+    },
+    "autoload": {
+        "psr-4": {"cvweiss\\": "src/"}
+    }
+}
