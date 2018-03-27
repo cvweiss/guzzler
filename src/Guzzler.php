@@ -72,7 +72,7 @@ class Guzzler
     public function verifyCallable($callable)
     {
         if (!is_callable($callable)) {
-            throw new InvalidArgumentException(print_r($callable, true) . " is not a callable function");
+            throw new \InvalidArgumentException(print_r($callable, true) . " is not a callable function");
         }
     }
 }
