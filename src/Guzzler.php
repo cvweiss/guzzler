@@ -10,6 +10,7 @@ class Guzzler
     private $concurrent = 0;
     private $maxConcurrent;
     private $usleep;
+    private $lastHeaders = [];
 
     public function __construct($maxConcurrent = 10, $usleep = 100000)
     {
@@ -57,10 +58,14 @@ class Guzzler
             function($response) use (&$guzzler, $fulfilled, $rejected, &$params) {
                 $guzzler->dec();
                 $content = (string) $response->getBody();
+                $this->lastHeaders = array_change_key_case($response->getHeaders());
                 $fulfilled($guzzler, $params, $content);
             },
             function($connectionException) use (&$guzzler, &$rejected, &$params) {
                 $guzzler->dec();
+                $response = $connectionException->getResponse();
+                $this->lastHeaders = $response == null ? [] : array_change_key_case($response->getHeaders());
+                $params['content'] = method_exists($response, "getBody") ? (string) $response->getBody() : "";
                 $rejected($guzzler, $params, $connectionException);
             });
         $this->inc();
@@ -74,5 +79,10 @@ class Guzzler
         if (!is_callable($callable)) {
             throw new \InvalidArgumentException(print_r($callable, true) . " is not a callable function");
         }
+    }
+    
+    public function getLastHeaders()
+    {
+        return $this->lastHeaders;
     }
 }
