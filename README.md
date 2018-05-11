@@ -68,3 +68,17 @@ Guzzler makes it easy to POST with a body included:
     $body = "[123, 456, 789]";
     $guzzler->call("https://example.org", "success", "fail", $params, $headers, "POST", $body);
     
+Guzzler makes it easy to retrieve the headers from the request. Keep in mind, all headers keys are lowercased.
+
+    function success(&$guzzler, &$params, $content)
+    {
+        $headers = $guzzler->getLastHeaders(); // Retrievess headers for this request
+        $etag = $headers['etag'][0]; // Each header is an array (thanks curl). Use [0] to get the value of the header in most cases.
+    }
+
+Guzzler will verify that the functions specified to be called actually exist, so if you typo you'll get an immediate notification before the request is actually made.
+
+    $guzzler->call("https://example.org", "scucess", "fail");
+    function success( ... ) { ... } 
+    
+    IllegalArgumentException returned since you have not defined the function 'scucess'
