@@ -21,7 +21,7 @@ To perform a call you will need two functions: one for successful requests, and 
     
     function fail(&$guzzler, &$params, $exception)
     {
-        // Do stuff with the successful return
+        // Do stuff with the failed return
     }
     
 To allow guzzler to iterate existing requests:
@@ -30,4 +30,4 @@ To allow guzzler to iterate existing requests:
     
 To finish all guzzler calls:
 
-   $guzzler->finish();
+    $guzzler->finish();
