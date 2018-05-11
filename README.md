@@ -70,15 +70,15 @@ Guzzler makes it easy to POST with a body included:
     $body = "[123, 456, 789]";
     $guzzler->call("https://example.org", "success", "fail", $params, $headers, "POST", $body);
     
-Guzzler makes it easy to retrieve the headers from the request. Keep in mind, all headers keys are lowercased.
+Guzzler makes it easy to retrieve the headers from the response. Keep in mind, all header's keys are lowercased.
 
     function success(&$guzzler, &$params, $content)
     {
-        $headers = $guzzler->getLastHeaders(); // Retrievess headers for this request
+        $headers = $guzzler->getLastHeaders(); // Retrieves headers for this request
         $etag = $headers['etag'][0]; // Each header is an array (thanks curl). Use [0] to get the value of the header in most cases.
     }
     
-Guzzler makes it very easy to add the headers as well.
+Guzzler makes it very easy to add headers to the request.
 
     $headers = [];
     $headers['User-Agent'] = "My Application";
@@ -87,14 +87,16 @@ Guzzler makes it very easy to add the headers as well.
 
 Guzzler will verify that the functions specified to be called actually exist, so if you typo you'll get an immediate notification before the request is actually made.
 
-    $guzzler->call("https://example.org", "scucess", "fail");
-    function success( ... ) { ... } 
+    $guzzler->call("https://example.org", "scucess", "fail"); // IllegalArgumentException returned since you have not defined the function 'scucess'
     
-    IllegalArgumentException returned since you have not defined the function 'scucess'
+    function success(&$guzzler, &$params, $content)
+    {
+       
+    }   
     
 # Guzzler Example
 
-Now that yo have fully read the manual, here is a complete example:
+Now that you have fully read the manual, here is a complete example:
 
     <?php
     
@@ -108,7 +110,7 @@ Now that yo have fully read the manual, here is a complete example:
         $guzzler->call("https://example.org?page=" . $page", "success", "fail", $params, $headers, "GET"); // Preps the request
         $guzzler->tick(); // Allows the above request to be started and allows previous requests to be processed and completed.
     }
-    $guzzler->finish(); // Waits for all requests to be completed.
+    $guzzler->finish(); // Waits for all requests to be processed and completed.
     
     // This function is called when the request is successful
     function success(&$guzzler, &$params, $content)
