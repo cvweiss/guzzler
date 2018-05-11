@@ -62,3 +62,9 @@ Guzzler also allows you to make additional guzzler calls within the functions.
         
         $guzzler->call("https://example.org/example.html", "success", "fail");
     }
+    
+Guzzler makes it easy to POST with a body included:
+
+    $body = "[123, 456, 789]";
+    $guzzler->call("https://example.org", "success", "fail", $params, $headers, "POST", $body);
+    
