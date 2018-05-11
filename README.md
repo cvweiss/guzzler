@@ -31,3 +31,34 @@ To allow guzzler to iterate existing requests:
 To finish all guzzler calls:
 
     $guzzler->finish();
+
+# Guzzler Advanced
+
+Guzzler utilizes Guzzle's many powerful tools and provides a simple wrapper for performing calls. 
+
+You can modify the number of concurrent requests as well as the maximum time Guzzler will wait between calls. The wait takes into consideration the time it took for a call to come back and be processed.
+
+    $guzzler = new Guzzler($concurrentRequests, $utimeSleep);
+    
+Guzzler also makes it easier to pass parameters to the functions that are called on fail or success.
+
+    $params = ['data' = ['id' = 123, 'foo' = 'bar']];
+    $guzzler->call("https://example.org", "success", "fail", $params);
+    
+    function success(&$guzzler, &$params, $content)
+    {
+        $data = $params['data'];
+        
+        // Do stuff with $content
+    }
+    
+Guzzler also allows you to make additional guzzler calls within the functions.
+
+    $guzzler->call("https://example.org", "success", "fail");
+    
+    function success(&$guzzler, &$params, $content)
+    {
+        // Do stuff with $content
+        
+        $guzzler->call("https://example.org/example.html", "success", "fail");
+    }
