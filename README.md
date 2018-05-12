@@ -28,7 +28,7 @@ To perform a call you will need two functions: one for successful requests, and 
         // Do stuff with the failed return
     }
     
-To allow guzzler to iterate existing requests:
+To allow guzzler to iterate and process existing requests:
 
     $guzzler->tick();
     
