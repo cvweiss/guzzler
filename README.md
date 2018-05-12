@@ -1,3 +1,7 @@
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/cvweiss/guzzler/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/cvweiss/guzzler/?branch=master)
+[![Latest Stable Version](https://img.shields.io/packagist/v/cvweiss/guzzler.svg)](https://packagist.org/packages/cvweiss/guzzler)
+
+
 # Guzzler
 
 Guzzler utilizes Guzzle's many powerful tools and provides a simple wrapper for performing asynchronous requests in PHP. Guzzle uses curl as the backend for making all requests.
