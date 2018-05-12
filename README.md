@@ -44,11 +44,13 @@ You can modify the number of concurrent requests as well as the maximum time Guz
     
 Guzzler lets you define the user agent once as well. The default is `"cvweiss/guzzler"`
 
+    $userAgent= "MyAppName Example";
     $guzzler = new Guzzler($concurrentRequests, $utimeSleep, $userAgent);
     
 Guzzler also lets you define curl options initially. The default is `[CURLOPT_FRESH_CONNECT => false]`
 
-    $guzzler = new Guzzler($concurrentRequests, $utimeSleep);
+    $curlOptions = [CURLOPT_FRESH_CONNECT => true];
+    $guzzler = new Guzzler($concurrentRequests, $utimeSleep, $userAgent, $curlOptions);
     
 Guzzlers also lets you define curl options with every call, just embed it within the headers with the `curl` key.
 
