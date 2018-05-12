@@ -16,9 +16,14 @@ class Guzzler
     {
         $this->curl = new \GuzzleHttp\Handler\CurlMultiHandler();
         $this->handler = \GuzzleHttp\HandlerStack::create($this->curl);
-        $this->client = new \GuzzleHttp\Client(['connect_timeout' => 10, 'timeout' => 60, 'handler' => $this->handler, 'User-Agent' => 'zkillboard.com']);
+        $this->client = new \GuzzleHttp\Client(['connect_timeout' => 10, 'timeout' => 60, 'handler' => $this->handler, 'User-Agent' => 'cvweiss/guzzler']);
         $this->maxConcurrent = max($maxConcurrent, 1);
         $this->usleep = max(0, min(1000000, (int) $usleep));
+    }
+
+    public function isSetDefault($arr, $key, $default)
+    {
+        return isset($arr[$key]) ? $arr[$key] : $default;
     }
 
     public function tick()
