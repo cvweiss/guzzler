@@ -12,11 +12,13 @@ class Guzzler
     private $usleep;
     private $lastHeaders = [];
 
-    public function __construct($maxConcurrent = 10, $usleep = 100000)
+    public function __construct($maxConcurrent = 10, $usleep = 100000, $userAgent = 'cvweiss/guzzler/', $curlOptions = [])
     {
+	$curlOptions = $curlOptions == [] ? [CURLOPT_FRESH_CONNECT => false] : $curlOptions;
+
         $this->curl = new \GuzzleHttp\Handler\CurlMultiHandler();
         $this->handler = \GuzzleHttp\HandlerStack::create($this->curl);
-        $this->client = new \GuzzleHttp\Client(['connect_timeout' => 10, 'timeout' => 60, 'handler' => $this->handler, 'User-Agent' => 'cvweiss/guzzler']);
+        $this->client = new \GuzzleHttp\Client(['curl' => $curlOptions, 'connect_timeout' => 10, 'timeout' => 60, 'handler' => $this->handler, 'User-Agent' => $userAgent]);
         $this->maxConcurrent = max($maxConcurrent, 1);
         $this->usleep = max(0, min(1000000, (int) $usleep));
     }
