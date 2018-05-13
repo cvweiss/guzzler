@@ -62,7 +62,7 @@ class Guzzler
         $guzzler = $this;
         $request = new \GuzzleHttp\Psr7\Request($callType, $uri, $setup, $body);
         $this->client->sendAsync($request)->then(
-            function($response) use (&$guzzler, $fulfilled, $rejected, &$params) {
+            function($response) use (&$guzzler, $fulfilled, &$params) {
                 $guzzler->dec();
                 $content = (string) $response->getBody();
                 $this->lastHeaders = array_change_key_case($response->getHeaders());
