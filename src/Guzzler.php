@@ -14,11 +14,11 @@ class Guzzler
 
     public function __construct($maxConcurrent = 10, $usleep = 100000, $userAgent = 'cvweiss/guzzler/', $curlOptions = [])
     {
-	$curlOptions = $curlOptions == [] ? [CURLOPT_FRESH_CONNECT => false] : $curlOptions;
+	$curlOptions = $curlOptions == [] ? [CURLOPT_SSL_VERIFYHOST => false, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_FRESH_CONNECT => false] : $curlOptions;
 
         $this->curl = new \GuzzleHttp\Handler\CurlMultiHandler();
         $this->handler = \GuzzleHttp\HandlerStack::create($this->curl);
-        $this->client = new \GuzzleHttp\Client(['curl' => $curlOptions, 'connect_timeout' => 10, 'timeout' => 60, 'handler' => $this->handler, 'User-Agent' => $userAgent]);
+        $this->client = new \GuzzleHttp\Client(['curl' => $curlOptions, 'connect_timeout' => 10, 'timeout' => 10, 'handler' => $this->handler, 'User-Agent' => $userAgent]);
         $this->maxConcurrent = max($maxConcurrent, 1);
         $this->usleep = max(0, min(1000000, (int) $usleep));
     }
@@ -33,6 +33,7 @@ class Guzzler
         $ms = microtime();
         do {
             $this->curl->tick();
+	    if ($this->concurrent >= $this->maxConcurrent) usleep(max(1, min(1000000, $this->usleep)));
         } while ($this->concurrent >= $this->maxConcurrent);
         return max(0, microtime() - $ms);
     }
@@ -59,13 +60,29 @@ class Guzzler
         $this->verifyCallable($fulfilled);
         $this->verifyCallable($rejected);
 
+	$params['uri'] = $uri;
+	$params['fulfilled'] = $fulfilled;
+	$params['rejected'] = $rejected;
+	$params['setup'] = $setup;
+	$params['callType'] = $callType;
+	$params['body'] = $body;
+
+        $redis = isset($setup['etag']) ? $setup['etag'] : null;
+        if ($redis !== null && $params['callType'] == 'GET') {
+            $etag = $redis->get("guzzler:etags:$uri");
+            if ($etag != "") $setup['If-None-Match'] = $etag;
+        }
+        unset($setup['etag']);
+
         $guzzler = $this;
         $request = new \GuzzleHttp\Psr7\Request($callType, $uri, $setup, $body);
         $this->client->sendAsync($request)->then(
-            function($response) use (&$guzzler, $fulfilled, &$params) {
+            function($response) use (&$guzzler, $fulfilled, &$params, $redis) {
                 $guzzler->dec();
                 $content = (string) $response->getBody();
                 $this->lastHeaders = array_change_key_case($response->getHeaders());
+                if (isset($this->lastHeaders['etag']) && strlen($content) > 0 && $redis !== null) $redis->setex("guzzler:etags:" . $params['uri'], 604800, $this->lastHeaders['etag'][0]);
+
                 $fulfilled($guzzler, $params, $content);
             },
             function($connectionException) use (&$guzzler, &$rejected, &$params) {
@@ -77,8 +94,6 @@ class Guzzler
             });
         $this->inc();
         $ms = $this->tick();
-        $sleep = min(1000000, max(0, $this->usleep - $ms));
-        usleep($sleep);
     }
 
     public function verifyCallable($callable)
