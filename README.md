@@ -143,6 +143,20 @@ function success(&$guzzler, &$params, $content)
 
 }   
 ```
+
+Guzzler makes it easy to implement etags. Pass $redis, which can be anything really as long as it implements get and setex properly.
+
+
+```php
+$headers = [];
+$headers['etag'] = $redis;
+$guzzler->call("https://example.org", "success", "fail", $params, $headers);
+
+function success(&$guzzler, &$params, $content)
+{
+    // $content will equal "" on a successful etag return
+}   
+```
     
 # Guzzler Example
 
