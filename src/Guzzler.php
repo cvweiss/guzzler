@@ -93,7 +93,7 @@ class Guzzler
                 $rejected($guzzler, $params, $connectionException);
             });
         $this->inc();
-        $ms = $this->tick();
+        $this->tick();
     }
 
     public function verifyCallable($callable)
