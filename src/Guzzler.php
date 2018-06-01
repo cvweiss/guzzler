@@ -67,12 +67,7 @@ class Guzzler
 	$params['callType'] = $callType;
 	$params['body'] = $body;
 
-        $redis = isset($setup['etag']) ? $setup['etag'] : null;
-        if ($redis !== null && $params['callType'] == 'GET') {
-            $etag = $redis->get("guzzler:etags:$uri");
-            if ($etag != "") $setup['If-None-Match'] = $etag;
-        }
-        unset($setup['etag']);
+	$redis = $this->applyEtag($setup, $params);
 
         $guzzler = $this;
         $request = new \GuzzleHttp\Psr7\Request($callType, $uri, $setup, $body);
@@ -81,8 +76,7 @@ class Guzzler
                 $guzzler->dec();
                 $content = (string) $response->getBody();
                 $this->lastHeaders = array_change_key_case($response->getHeaders());
-                if (isset($this->lastHeaders['etag']) && strlen($content) > 0 && $redis !== null) $redis->setex("guzzler:etags:" . $params['uri'], 604800, $this->lastHeaders['etag'][0]);
-
+		$this->applyEtagPost($this->lastHeaders, $params['uri'], $content, $redis);
                 $fulfilled($guzzler, $params, $content);
             },
             function($connectionException) use (&$guzzler, &$rejected, &$params) {
@@ -94,6 +88,24 @@ class Guzzler
             });
         $this->inc();
         $this->tick();
+    }
+
+    protected function applyEtag(&$setup, $params)
+    {
+        $redis = isset($setup['etag']) ? $setup['etag'] : null;
+        if ($redis !== null && $params['callType'] == 'GET') {
+            $etag = $redis->get("guzzler:etags:" . $params['uri']);
+            if ($etag != "") $setup['If-None-Match'] = $etag;
+        }
+        unset($setup['etag']);
+	return $redis;
+    }
+
+    protected function applyEtagPost($headers, $uri, $content, $redis)
+    {
+        if (isset($headers['etag']) && strlen($content) == 0 && $redis !== null) {
+	    $redis->setex("guzzler:etags:$uri", 604800, $headers['etag'][0]);
+	}
     }
 
     public function verifyCallable($callable)
