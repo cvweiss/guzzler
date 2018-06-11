@@ -60,6 +60,8 @@ class Guzzler
         $this->verifyCallable($fulfilled);
         $this->verifyCallable($rejected);
 
+	while ($this->concurrent >= $this->maxConcurrent) $this->tick();
+
 	$params['uri'] = $uri;
 	$params['fulfilled'] = $fulfilled;
 	$params['rejected'] = $rejected;
@@ -87,7 +89,6 @@ class Guzzler
                 $rejected($guzzler, $params, $connectionException);
             });
         $this->inc();
-        $this->tick();
     }
 
     protected function applyEtag(&$setup, $params)
