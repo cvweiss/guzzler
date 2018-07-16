@@ -11,6 +11,7 @@ class Guzzler
     private $maxConcurrent;
     private $usleep;
     private $lastHeaders = [];
+    private $etagTTL = 86400;
 
     public function __construct($maxConcurrent = 10, $usleep = 100000, $userAgent = 'cvweiss/guzzler/', $curlOptions = [])
     {
@@ -104,8 +105,8 @@ class Guzzler
 
     protected function applyEtagPost($headers, $uri, $content, $redis)
     {
-        if (isset($headers['etag']) && strlen($content) == 0 && $redis !== null) {
-	    $redis->setex("guzzler:etags:$uri", 604800, $headers['etag'][0]);
+        if (isset($headers['etag']) && $redis !== null) {
+	    $redis->setex("guzzler:etags:$uri", $this->etagTTL, $headers['etag'][0]);
 	}
     }
 
@@ -119,5 +120,10 @@ class Guzzler
     public function getLastHeaders()
     {
         return $this->lastHeaders;
+    }
+
+    public function setEtagTTL($ttl)
+    {
+	$this->etagTTL = $ttl;
     }
 }
