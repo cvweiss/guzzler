@@ -79,7 +79,7 @@ class Guzzler
                 $guzzler->dec();
                 $content = (string) $response->getBody();
                 $this->lastHeaders = array_change_key_case($response->getHeaders());
-		$this->applyEtagPost($this->lastHeaders, $params['uri'], $content, $redis);
+		$this->applyEtagPost($this->lastHeaders, $params['uri'], $redis);
                 $fulfilled($guzzler, $params, $content);
             },
             function($connectionException) use (&$guzzler, &$rejected, &$params) {
@@ -103,7 +103,7 @@ class Guzzler
 	return $redis;
     }
 
-    protected function applyEtagPost($headers, $uri, $content, $redis)
+    protected function applyEtagPost($headers, $uri, $redis)
     {
         if (isset($headers['etag']) && $redis !== null) {
 	    $redis->setex("guzzler:etags:$uri", $this->etagTTL, $headers['etag'][0]);
