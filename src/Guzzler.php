@@ -19,7 +19,7 @@ class Guzzler
 
 		$this->curl = new \GuzzleHttp\Handler\CurlMultiHandler();
 		$this->handler = \GuzzleHttp\HandlerStack::create($this->curl);
-		$this->client = new \GuzzleHttp\Client(['curl' => $curlOptions, 'connect_timeout' => 10, 'timeout' => 10, 'handler' => $this->handler, 'headers' => ['User-Agent' => $userAgent]);
+		$this->client = new \GuzzleHttp\Client(['curl' => $curlOptions, 'connect_timeout' => 10, 'timeout' => 10, 'handler' => $this->handler, 'headers' => ['User-Agent' => $userAgent]]);
 		$this->maxConcurrent = max($maxConcurrent, 1);
 		$this->usleep = max(0, min(1000000, (int) $usleep));
 	}
