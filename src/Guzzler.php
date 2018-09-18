@@ -26,19 +26,19 @@ class Guzzler
 
 	public function tick()
 	{
-		$ms = microtime();
+		$ms = microtime(1);
 		do {
 			$this->curl->tick();
 			if ($this->concurrent >= $this->maxConcurrent) usleep(max(1, min(1000000, $this->usleep)));
 		} while ($this->concurrent >= $this->maxConcurrent);
-		return max(0, microtime() - $ms);
+		return max(0, microtime(1) - $ms);
 	}
 
 	public function finish()
 	{
-		$ms = microtime();
+		$ms = microtime(1);
 		$this->curl->execute();
-		return max(0, microtime() - $ms);
+		return max(0, microtime(1) - $ms);
 	}
 
 	public function inc()
